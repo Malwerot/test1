@@ -53,7 +53,7 @@ local function equipItem(itemName)
     return false
 end
 
--- Função pressE fornecida pelo usuário (varre todas as Cooking Pot em Houses)
+-- pressE: varre todas as Cooking Pot em Workspace.Map.Houses e aciona cada ProximityPrompt
 local function pressE()
     pcall(function()
         local map = Workspace:FindFirstChild("Map")
@@ -66,10 +66,10 @@ local function pressE()
             if interior then
                 for _, child in ipairs(interior:GetChildren()) do
                     if child.Name == "Cooking Pot" then
+                        -- tenta achar ProximityPrompt na Attachment ou nos descendentes
                         local att = child:FindFirstChild("Attachment")
                         local pp = att and att:FindFirstChildWhichIsA("ProximityPrompt")
                         if not pp then
-                            -- procura em descendentes caso a Attachment não exista
                             for _, desc in ipairs(child:GetDescendants()) do
                                 if desc:IsA("ProximityPrompt") then
                                     pp = desc
