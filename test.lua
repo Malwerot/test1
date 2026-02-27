@@ -53,20 +53,34 @@ local function equipItem(itemName)
     return false
 end
 
-local function pressE()
+-- Função segura: apenas lista todas as Cooking Pot no mapa (não aciona prompts)
+local function listarCookingPots()
     pcall(function()
-        local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
-        if not interior then return end
-        for _, child in ipairs(interior:GetChildren()) do
-            if child.Name == "Cooking Pot" then
-                local att = child:FindFirstChild("Attachment")
-                local pp = att and att:FindFirstChild("ProximityPrompt")
-                if pp then
-                    fireproximityprompt(pp)
-                    print("Pressionou E no Cooking Pot")
-                    return
+        local housesFolder = Workspace:FindFirstChild("Map") and Workspace.Map:FindFirstChild("Houses")
+        if not housesFolder then
+            warn("Pasta Houses não encontrada em Workspace.Map")
+            return
+        end
+
+        local found = {}
+        for _, house in ipairs(housesFolder:GetChildren()) do
+            local interior = house:FindFirstChild("Interior")
+            if interior then
+                for _, child in ipairs(interior:GetChildren()) do
+                    if child.Name == "Cooking Pot" then
+                        table.insert(found, {house = house.Name, pot = child})
+                    end
                 end
             end
+        end
+
+        if #found == 0 then
+            print("Nenhuma Cooking Pot encontrada.")
+            return
+        end
+
+        for i, info in ipairs(found) do
+            print(string.format("%d. House: %s | Pot object: %s", i, info.house, info.pot.Name))
         end
     end)
 end
@@ -90,7 +104,8 @@ local function startAutoFarm()
         if equipPending then
             equipTimer = equipTimer + dt
             if equipTimer >= EQUIP_DELAY then
-                pressE()
+                -- Chama a versão segura que apenas lista panelas (não interage)
+                listarCookingPots()
                 equipPending = false
                 equipTimer = 0
                 farmTimer = 0
