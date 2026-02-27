@@ -15,10 +15,10 @@ local EQUIP_DELAY = 0.3
 
 -- Lista de itens com cooldowns específicos
 local farmItems = {
-    {name = "Water", cooldown = 20},
-    {name = "Sugar Block Bag", cooldown = 2},
-    {name = "Gelatin", cooldown = 40},
-    {name = "Empty Bag", cooldown = 5},
+    {name = "Water", cooldown = 0.5},
+    {name = "Sugar Block Bag", cooldown = 20},
+    {name = "Gelatin", cooldown = 25},
+    {name = "Empty Bag", cooldown = 48},
 }
 
 -- Funções utilitárias
