@@ -4,9 +4,6 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
--- Config
-local PROXIMITY_DISTANCE = 12 -- distância em studs para considerar "próximo"
-
 -- Variáveis globais
 local autoFarmEnabled = false
 local farmConnection
@@ -56,106 +53,18 @@ local function equipItem(itemName)
     return false
 end
 
--- Função auxiliar: retorna lista de casas WH ordenadas numericamente
-local function getOrderedWHHouses(housesFolder)
-    local list = {}
-    for _, house in ipairs(housesFolder:GetChildren()) do
-        if type(house.Name) == "string" and house.Name:sub(1,2) == "WH" then
-            table.insert(list, house)
-        end
-    end
-    table.sort(list, function(a,b)
-        local na = tonumber(a.Name:match("^WH(%d+)$")) or math.huge
-        local nb = tonumber(b.Name:match("^WH(%d+)$")) or math.huge
-        return na < nb
-    end)
-    return list
-end
-
--- pressE sem teleport: escolhe a primeira WH com panelas próximas e interage só nela
 local function pressE()
     pcall(function()
-        local map = Workspace:FindFirstChild("Map")
-        if not map then return end
-        local housesFolder = map:FindFirstChild("Houses")
-        if not housesFolder then return end
-
-        local character = LocalPlayer.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
-        local whHouses = getOrderedWHHouses(housesFolder)
-
-        -- procura a primeira casa WH que tenha pelo menos uma panela dentro da distância configurada
-        local chosenHouse = nil
-        if hrp then
-            for _, house in ipairs(whHouses) do
-                local interior = house:FindFirstChild("Interior")
-                if interior then
-                    for _, child in ipairs(interior:GetChildren()) do
-                        if child.Name == "Cooking Pot" then
-                            local part = child:IsA("BasePart") and child or child:FindFirstChildWhichIsA("BasePart")
-                            if part then
-                                local dist = (hrp.Position - part.Position).Magnitude
-                                if dist <= PROXIMITY_DISTANCE then
-                                    chosenHouse = house
-                                    break
-                                end
-                            end
-                        end
-                    end
-                end
-                if chosenHouse then break end
-            end
-        end
-
-        -- se encontrou uma casa próxima, interage com todas as Cooking Pot dessa casa
-        if chosenHouse then
-            local interior = chosenHouse:FindFirstChild("Interior")
-            if interior then
-                for _, child in ipairs(interior:GetChildren()) do
-                    if child.Name == "Cooking Pot" then
-                        local att = child:FindFirstChild("Attachment")
-                        local pp = att and att:FindFirstChildWhichIsA("ProximityPrompt")
-                        if not pp then
-                            for _, desc in ipairs(child:GetDescendants()) do
-                                if desc:IsA("ProximityPrompt") then
-                                    pp = desc
-                                    break
-                                end
-                            end
-                        end
-                        if pp then
-                            pcall(function() fireproximityprompt(pp) end)
-                            print("Pressionou E na Cooking Pot em:", chosenHouse.Name)
-                            wait(0.12)
-                        end
-                    end
-                end
-            end
-            return
-        end
-
-        -- fallback sem teleport: nenhuma casa WH próxima encontrada, aciona remotamente todos os prompts das WH
-        for _, house in ipairs(whHouses) do
-            local interior = house:FindFirstChild("Interior")
-            if interior then
-                for _, child in ipairs(interior:GetChildren()) do
-                    if child.Name == "Cooking Pot" then
-                        local att = child:FindFirstChild("Attachment")
-                        local pp = att and att:FindFirstChildWhichIsA("ProximityPrompt")
-                        if not pp then
-                            for _, desc in ipairs(child:GetDescendants()) do
-                                if desc:IsA("ProximityPrompt") then
-                                    pp = desc
-                                    break
-                                end
-                            end
-                        end
-                        if pp then
-                            pcall(function() fireproximityprompt(pp) end)
-                            print("Pressionou E remotamente na Cooking Pot em:", house.Name)
-                            wait(0.12)
-                        end
-                    end
+        local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
+        if not interior then return end
+        for _, child in ipairs(interior:GetChildren()) do
+            if child.Name == "Cooking Pot" then
+                local att = child:FindFirstChild("Attachment")
+                local pp = att and att:FindFirstChild("ProximityPrompt")
+                if pp then
+                    fireproximityprompt(pp)
+                    print("Pressionou E no Cooking Pot")
+                    return
                 end
             end
         end
