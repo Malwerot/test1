@@ -1,8 +1,7 @@
--- Serviços principais
+-- Serviços
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 -- Variáveis globais
@@ -16,10 +15,10 @@ local EQUIP_DELAY = 0.3
 
 -- Lista de itens com cooldowns específicos
 local farmItems = {
-    {name = "Water", cooldown = 20},          -- espera 20s
-    {name = "Sugar Block Bag", cooldown = 2}, -- espera 2s
-    {name = "Gelatin", cooldown = 40},        -- espera 40s
-    {name = "Empty Bag", cooldown = 5},       -- exemplo: 5s
+    {name = "Water", cooldown = 20},
+    {name = "Sugar Block Bag", cooldown = 2},
+    {name = "Gelatin", cooldown = 40},
+    {name = "Empty Bag", cooldown = 5},
 }
 
 -- Funções utilitárias
@@ -40,11 +39,17 @@ end
 
 local function equipItem(itemName)
     local character = LocalPlayer.Character
+    if not character then return false end
     local tool = LocalPlayer.Backpack:FindFirstChild(itemName)
-    if tool and character then
+    if tool then
         local hum = character:FindFirstChild("Humanoid")
-        if hum then hum:EquipTool(tool) return true end
+        if hum then
+            hum:EquipTool(tool)
+            print("Equipado:", itemName)
+            return true
+        end
     end
+    print("Item não encontrado:", itemName)
     return false
 end
 
@@ -56,13 +61,17 @@ local function pressE()
             if child.Name == "Cooking Pot" then
                 local att = child:FindFirstChild("Attachment")
                 local pp = att and att:FindFirstChild("ProximityPrompt")
-                if pp then fireproximityprompt(pp) return end
+                if pp then
+                    fireproximityprompt(pp)
+                    print("Pressionou E no Cooking Pot")
+                    return
+                end
             end
         end
     end)
 end
 
--- Funções do autofarm
+-- Autofarm
 local function startAutoFarm()
     if farmConnection then farmConnection:Disconnect() end
     farmTimer = 0
@@ -109,7 +118,7 @@ local function stopAutoFarm()
     end
 end
 
--- UI (Kavo Library)
+-- UI (depois que tudo está pronto)
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
 local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
