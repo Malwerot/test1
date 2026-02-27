@@ -1,4 +1,5 @@
 -- bh4l pluh hub - Auto Farm UI (Red Dark Camouflage Theme)
+-- Base: Kavo UI modificada
 
 local Kavo = {}
 local input = game:GetService("UserInputService")
@@ -68,7 +69,7 @@ function Kavo:CreateLib(kavName, themeList)
     Main.Parent = ScreenGui
     Main.BackgroundColor3 = themeList.Background
     Main.Position = UDim2.new(0.3, 0, 0.25, 0)
-    Main.Size = UDim2.new(0, 525, 0, 318)
+    Main.Size = UDim2.new(0, 600, 0, 400)
 
     local MainCorner = Instance.new("UICorner")
     MainCorner.CornerRadius = UDim.new(0, 8)
@@ -117,12 +118,56 @@ function Kavo:CreateLib(kavName, themeList)
     bg.ZIndex = -1
     bg.Parent = Main
 
-    -- Conteúdo principal
+    -- Tabs container
+    local Tabs = Instance.new("Frame")
+    Tabs.Parent = Main
+    Tabs.BackgroundTransparency = 1
+    Tabs.Position = UDim2.new(0, 0, 0, 45)
+    Tabs.Size = UDim2.new(1, 0, 1, -45)
+
+    local TabList = Instance.new("UIListLayout")
+    TabList.Parent = Tabs
+    TabList.FillDirection = Enum.FillDirection.Horizontal
+    TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    TabList.SortOrder = Enum.SortOrder.LayoutOrder
+    TabList.Padding = UDim.new(0, 10)
+
+    -- AutoFarm Tab
+    local AutoFarmTab = Instance.new("TextButton")
+    AutoFarmTab.Parent = Tabs
+    AutoFarmTab.BackgroundColor3 = themeList.SchemeColor
+    AutoFarmTab.Size = UDim2.new(0, 150, 0, 40)
+    AutoFarmTab.Font = Enum.Font.GothamSemibold
+    AutoFarmTab.Text = "Auto Farm"
+    AutoFarmTab.TextColor3 = themeList.TextColor
+    AutoFarmTab.TextSize = 18
+
+    -- Config Tab
+    local ConfigTab = Instance.new("TextButton")
+    ConfigTab.Parent = Tabs
+    ConfigTab.BackgroundColor3 = themeList.SchemeColor
+    ConfigTab.Size = UDim2.new(0, 150, 0, 40)
+    ConfigTab.Font = Enum.Font.GothamSemibold
+    ConfigTab.Text = "Configurações"
+    ConfigTab.TextColor3 = themeList.TextColor
+    ConfigTab.TextSize = 18
+
+    -- Extras Tab
+    local ExtrasTab = Instance.new("TextButton")
+    ExtrasTab.Parent = Tabs
+    ExtrasTab.BackgroundColor3 = themeList.SchemeColor
+    ExtrasTab.Size = UDim2.new(0, 150, 0, 40)
+    ExtrasTab.Font = Enum.Font.GothamSemibold
+    ExtrasTab.Text = "Extras"
+    ExtrasTab.TextColor3 = themeList.TextColor
+    ExtrasTab.TextSize = 18
+
+    -- Conteúdo AutoFarm
     local Content = Instance.new("ScrollingFrame")
     Content.Parent = Main
     Content.BackgroundTransparency = 1
-    Content.Position = UDim2.new(0, 10, 0, 50)
-    Content.Size = UDim2.new(1, -20, 1, -60)
+    Content.Position = UDim2.new(0, 10, 0, 90)
+    Content.Size = UDim2.new(1, -20, 1, -100)
     Content.ScrollBarThickness = 6
 
     local ContentList = Instance.new("UIListLayout")
@@ -143,50 +188,4 @@ function Kavo:CreateLib(kavName, themeList)
     local toggled = false
     ToggleAuto.MouseButton1Click:Connect(function()
         toggled = not toggled
-        ToggleAuto.Text = "Auto Farm: " .. (toggled and "ON ✅" or "OFF ❌")
-        print("Auto Farm " .. (toggled and "ativado" or "desativado"))
-    end)
-
-    -- Status Label
-    local Status = Instance.new("TextLabel")
-    Status.Parent = Content
-    Status.BackgroundTransparency = 1
-    Status.Size = UDim2.new(1, 0, 0, 40)
-    Status.Font = Enum.Font.GothamSemibold
-    Status.Text = "Status: Parado"
-    Status.TextColor3 = themeList.TextColor
-    Status.TextSize = 18
-
-    -- Inventário Button
-    local InvButton = Instance.new("TextButton")
-    InvButton.Parent = Content
-    InvButton.BackgroundColor3 = themeList.SchemeColor
-    InvButton.Size = UDim2.new(1, 0, 0, 40)
-    InvButton.Text = "Mostrar Inventário"
-    InvButton.TextColor3 = Color3.new(1,1,1)
-    InvButton.Font = Enum.Font.Gotham
-    InvButton.TextSize = 18
-    InvButton.MouseButton1Click:Connect(function()
-        print("Inventário listado!")
-    end)
-
-    -- Easter Egg Button
-    local EggButton = Instance.new("TextButton")
-    EggButton.Parent = Content
-    EggButton.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
-    EggButton.Size = UDim2.new(1, 0, 0, 40)
-    EggButton.Text = "???"
-    EggButton.TextColor3 = Color3.new(1,1,1)
-    EggButton.Font = Enum.Font.GothamBold
-    EggButton.TextSize = 20
-    EggButton.MouseButton1Click:Connect(function()
-        Status.Text = "Easter Egg encontrado 🐇🔥"
-        print("Você achou o segredo do hub!")
-    end)
-
-    print("bh4l pluh hub - Auto Farm UI carregada (Red Camouflage Style)")
-    return Kavo
-end
-
--- Inicializa a UI
-Kavo:CreateLib("bh4l pluh hub", RedDarkCamouflage)
+        ToggleAuto.Text = "Auto Farm: "
