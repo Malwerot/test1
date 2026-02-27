@@ -13,6 +13,10 @@ local equipPending = false
 local equipTimer = 0
 local EQUIP_DELAY = 0.3
 
+-- Novas variáveis para panelas
+local cookingPots = {}
+local potIndex = 1
+
 -- Lista de itens com cooldowns específicos
 local farmItems = {
     {name = "Water", cooldown = 0.5},
@@ -53,8 +57,9 @@ local function equipItem(itemName)
     return false
 end
 
--- Função segura: apenas lista todas as Cooking Pot no mapa (não aciona prompts)
-local function listarCookingPots()
+-- Retorna uma lista de instâncias Cooking Pot encontradas no mapa
+local function getCookingPots()
+    local found = {}
     pcall(function()
         local housesFolder = Workspace:FindFirstChild("Map") and Workspace.Map:FindFirstChild("Houses")
         if not housesFolder then
@@ -62,27 +67,107 @@ local function listarCookingPots()
             return
         end
 
-        local found = {}
         for _, house in ipairs(housesFolder:GetChildren()) do
             local interior = house:FindFirstChild("Interior")
             if interior then
                 for _, child in ipairs(interior:GetChildren()) do
                     if child.Name == "Cooking Pot" then
-                        table.insert(found, {house = house.Name, pot = child})
+                        table.insert(found, child)
                     end
                 end
             end
         end
+    end)
+    return found
+end
 
+-- Função segura: apenas lista todas as Cooking Pot no mapa (mantive para debug)
+local function listarCookingPots()
+    pcall(function()
+        local found = getCookingPots()
         if #found == 0 then
             print("Nenhuma Cooking Pot encontrada.")
             return
         end
-
-        for i, info in ipairs(found) do
-            print(string.format("%d. House: %s | Pot object: %s", i, info.house, info.pot.Name))
+        for i, pot in ipairs(found) do
+            print(string.format("%d. Pot object: %s | Parent: %s", i, pot.Name, pot.Parent and pot.Parent.Name or "nil"))
         end
     end)
+end
+
+-- Tenta interagir com uma Cooking Pot (move o personagem e aciona ProximityPrompt se existir)
+local function interactWithPot(pot)
+    if not pot or not pot.Parent then return false end
+    local character = LocalPlayer.Character
+    if not character then return false end
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return false end
+
+    -- Move o personagem para perto da panela (offset para não colidir dentro do modelo)
+    local successMove, err = pcall(function()
+        local targetCFrame = pot:IsA("BasePart") and pot.CFrame or (pot:FindFirstChildWhichIsA("BasePart") and pot:FindFirstChildWhichIsA("BasePart").CFrame)
+        if targetCFrame then
+            hrp.CFrame = targetCFrame * CFrame.new(0, 0, -2) -- 2 studs atrás da panela
+        end
+    end)
+    if not successMove then
+        warn("Falha ao mover para a panela:", err)
+    end
+
+    -- Procura ProximityPrompt nos descendentes
+    local prompt
+    for _, desc in ipairs(pot:GetDescendants()) do
+        if desc:IsA("ProximityPrompt") then
+            prompt = desc
+            break
+        end
+    end
+
+    if prompt then
+        -- Tenta acionar o prompt de forma segura
+        local ok, e = pcall(function()
+            -- Alguns jogos aceitam InputHoldBegin/InputHoldEnd; outros têm FireServer em RemoteEvent
+            if typeof(prompt.InputHoldBegin) == "function" then
+                prompt:InputHoldBegin()
+                wait(0.1)
+                prompt:InputHoldEnd()
+            else
+                -- Tenta chamar :Trigger if available
+                if typeof(prompt.Trigger) == "function" then
+                    prompt:Trigger()
+                end
+            end
+        end)
+        if not ok then
+            -- Tenta FireServer se existir
+            local fired = false
+            for _, desc in ipairs(pot:GetDescendants()) do
+                if desc:IsA("RemoteEvent") then
+                    pcall(function() desc:FireServer() end)
+                    fired = true
+                end
+            end
+            if not fired then
+                warn("Não foi possível acionar ProximityPrompt ou RemoteEvent na panela:", e)
+            end
+        end
+        return true
+    else
+        -- Se não houver prompt, tenta tocar na panela (alguns jogos detectam Touched)
+        local part = pot:IsA("BasePart") and pot or pot:FindFirstChildWhichIsA("BasePart")
+        if part then
+            local okTouch, errTouch = pcall(function()
+                hrp.CFrame = part.CFrame * CFrame.new(0, 0, -2)
+            end)
+            if okTouch then
+                return true
+            else
+                warn("Falha ao posicionar para tocar na panela:", errTouch)
+            end
+        end
+    end
+
+    return false
 end
 
 -- Autofarm
@@ -91,6 +176,14 @@ local function startAutoFarm()
     farmTimer = 0
     equipPending = false
     currentIndex = 1
+    potIndex = 1
+
+    -- Preenche a lista de panelas no início
+    cookingPots = getCookingPots()
+    if #cookingPots == 0 then
+        warn("Nenhuma Cooking Pot encontrada. Use listarCookingPots() para debug.")
+        return
+    end
 
     farmConnection = RunService.Heartbeat:Connect(function(dt)
         if not autoFarmEnabled then
@@ -104,8 +197,21 @@ local function startAutoFarm()
         if equipPending then
             equipTimer = equipTimer + dt
             if equipTimer >= EQUIP_DELAY then
-                -- Chama a versão segura que apenas lista panelas (não interage)
-                listarCookingPots()
+                -- Após equipar, interage com a panela atual
+                local pot = cookingPots[potIndex]
+                local interacted = false
+                if pot then
+                    local ok, err = pcall(function()
+                        interacted = interactWithPot(pot)
+                    end)
+                    if not ok then
+                        warn("Erro ao interagir com panela:", err)
+                    end
+                end
+
+                -- Avança para a próxima panela (mesmo se a interação falhar)
+                potIndex = (potIndex % #cookingPots) + 1
+
                 equipPending = false
                 equipTimer = 0
                 farmTimer = 0
@@ -156,4 +262,8 @@ SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     for i, itemName in ipairs(getInventory()) do
         print(i .. ". " .. itemName)
     end
+end)
+
+SectionFarm:NewButton("Listar Cooking Pots", "Lista as Cooking Pots encontradas", function()
+    listarCookingPots()
 end)
