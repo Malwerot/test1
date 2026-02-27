@@ -1,75 +1,57 @@
--- // bh4l pluh hub - Auto Farm UI (Red Dark Topographic Theme)
--- Base: Kavo UI modificada
+-- bh4l pluh hub - Auto Farm UI (Red Dark Camouflage Theme)
 
 local Kavo = {}
-
-local tween = game:GetService("TweenService")
-local tweeninfo = TweenInfo.new
 local input = game:GetService("UserInputService")
-local run = game:GetService("RunService")
 
-local Utility = {}
-local Objects = {}
-
+-- Função para arrastar UI
 function Kavo:DraggingEnabled(frame, parent)
     parent = parent or frame
-    local dragging = false
-    local dragInput, mousePos, framePos
+    local dragging, dragInput, mousePos, framePos = false, nil, nil, nil
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+    frame.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
-            mousePos = input.Position
+            mousePos = inp.Position
             framePos = parent.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
+            inp.Changed:Connect(function()
+                if inp.UserInputState == Enum.UserInputState.End then
                     dragging = false
                 end
             end)
         end
     end)
 
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
+    frame.InputChanged:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = inp
         end
     end)
 
-    input.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - mousePos
-            parent.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+    input.InputChanged:Connect(function(inp)
+        if inp == dragInput and dragging then
+            local delta = inp.Position - mousePos
+            parent.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X,
+                                        framePos.Y.Scale, framePos.Y.Offset + delta.Y)
         end
     end)
 end
 
-function Utility:TweenObject(obj, properties, duration, ...)
-    tween:Create(obj, tweeninfo(duration, ...), properties):Play()
-end
-
--- Tema custom RED DARK agressivo com fundo topo
-local RedDarkTopo = {
-    SchemeColor   = Color3.fromRGB(220, 20, 60),     -- Vermelho vivo (botões, toggles, etc)
-    Background    = Color3.fromRGB(18, 6, 6),        -- Fundo principal vermelho escuro
-    Header        = Color3.fromRGB(30, 0, 0),        -- Header/sidebar quase preto-vermelho
-    TextColor     = Color3.fromRGB(245, 220, 220),   -- Texto claro
-    ElementColor  = Color3.fromRGB(40, 10, 10)       -- Elementos fundo
+-- Tema custom Red Dark Camuflado
+local RedDarkCamouflage = {
+    SchemeColor   = Color3.fromRGB(200, 30, 30),
+    Background    = Color3.fromRGB(25, 10, 10),
+    Header        = Color3.fromRGB(40, 0, 0),
+    TextColor     = Color3.fromRGB(255, 230, 230),
+    ElementColor  = Color3.fromRGB(50, 15, 15)
 }
 
 local LibName = "Bh4lPluhHub_" .. math.random(1000,9999)
 
-function Kavo:ToggleUI()
-    local gui = game.CoreGui:FindFirstChild(LibName)
-    if gui then
-        gui.Enabled = not gui.Enabled
-    end
-end
-
 function Kavo:CreateLib(kavName, themeList)
-    themeList = RedDarkTopo  -- Força o tema vermelho
-
+    themeList = RedDarkCamouflage
     kavName = kavName or "bh4l pluh hub"
 
+    -- Remove UI antiga
     for _, v in pairs(game.CoreGui:GetChildren()) do
         if v:IsA("ScreenGui") and v.Name == LibName then
             v:Destroy()
@@ -83,10 +65,8 @@ function Kavo:CreateLib(kavName, themeList)
     ScreenGui.ResetOnSpawn = false
 
     local Main = Instance.new("Frame")
-    Main.Name = "Main"
     Main.Parent = ScreenGui
     Main.BackgroundColor3 = themeList.Background
-    Main.ClipsDescendants = true
     Main.Position = UDim2.new(0.3, 0, 0.25, 0)
     Main.Size = UDim2.new(0, 525, 0, 318)
 
@@ -94,114 +74,65 @@ function Kavo:CreateLib(kavName, themeList)
     MainCorner.CornerRadius = UDim.new(0, 8)
     MainCorner.Parent = Main
 
-    local MainHeader = Instance.new("Frame")
-    MainHeader.Name = "MainHeader"
-    MainHeader.Parent = Main
-    MainHeader.BackgroundColor3 = themeList.Header
-    MainHeader.Size = UDim2.new(1, 0, 0, 40)
+    local Header = Instance.new("Frame")
+    Header.Parent = Main
+    Header.BackgroundColor3 = themeList.Header
+    Header.Size = UDim2.new(1, 0, 0, 40)
 
-    local title = Instance.new("TextLabel")
-    title.Name = "title"
-    title.Parent = MainHeader
-    title.BackgroundTransparency = 1
-    title.Position = UDim2.new(0.02, 0, 0.15, 0)
-    title.Size = UDim2.new(0.5, 0, 0.7, 0)
-    title.Font = Enum.Font.GothamBold
-    title.Text = "bh4l pluh hub"
-    title.TextColor3 = themeList.TextColor
-    title.TextSize = 22
-    title.TextXAlignment = Enum.TextXAlignment.Left
+    local Title = Instance.new("TextLabel")
+    Title.Parent = Header
+    Title.BackgroundTransparency = 1
+    Title.Position = UDim2.new(0.02, 0, 0.15, 0)
+    Title.Size = UDim2.new(0.5, 0, 0.7, 0)
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = kavName .. " 🔥"
+    Title.TextColor3 = themeList.TextColor
+    Title.TextSize = 22
+    Title.TextXAlignment = Enum.TextXAlignment.Left
 
-    local close = Instance.new("TextButton")
-    close.Name = "close"
-    close.Parent = MainHeader
-    close.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
-    close.Position = UDim2.new(0.94, 0, 0.15, 0)
-    close.Size = UDim2.new(0, 30, 0, 30)
-    close.Font = Enum.Font.Gotham
-    close.Text = "X"
-    close.TextColor3 = Color3.new(1,1,1)
-    close.TextSize = 20
-
-    close.MouseButton1Click:Connect(function()
+    local Close = Instance.new("TextButton")
+    Close.Parent = Header
+    Close.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    Close.Position = UDim2.new(0.94, 0, 0.15, 0)
+    Close.Size = UDim2.new(0, 30, 0, 30)
+    Close.Font = Enum.Font.Gotham
+    Close.Text = "X"
+    Close.TextColor3 = Color3.new(1,1,1)
+    Close.TextSize = 20
+    Close.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
 
-    Kavo:DraggingEnabled(MainHeader, Main)
+    Kavo:DraggingEnabled(Header, Main)
 
-    -- Fundo topográfico (estampa)
-    spawn(function()
-        wait(1.5)
-        if ScreenGui then
-            local bg = Instance.new("ImageLabel")
-            bg.Name = "TopoBG"
-            bg.Size = UDim2.new(1,0,1,0)
-            bg.Position = UDim2.new(0,0,0,0)
-            bg.BackgroundTransparency = 1
-            bg.ImageTransparency = 0.75  -- Ajuste se ficar muito forte (0.6 ~ 0.85)
-            bg.Image = "rbxassetid://10819100745"  -- TROQUE POR UM ID VERMELHO/TOPO MELHOR!
-            bg.ImageColor3 = Color3.fromRGB(120, 0, 0)  -- Tint vermelho sangue
-            bg.ScaleType = Enum.ScaleType.Tile
-            bg.TileSize = UDim2.new(0, 600, 0, 600)  -- Ajuste o tamanho do repeat
-            bg.ZIndex = -50
-            bg.Parent = ScreenGui
-            print("Fundo topográfico vermelho aplicado!")
-        end
-    end)
+    -- Fundo camuflado/topográfico
+    local bg = Instance.new("ImageLabel")
+    bg.Size = UDim2.new(1,0,1,0)
+    bg.BackgroundTransparency = 1
+    bg.ImageTransparency = 0.8
+    bg.Image = "rbxassetid://10819100745" -- ID exemplo
+    bg.ImageColor3 = Color3.fromRGB(120, 0, 0)
+    bg.ScaleType = Enum.ScaleType.Tile
+    bg.TileSize = UDim2.new(0, 600, 0, 600)
+    bg.ZIndex = -1
+    bg.Parent = Main
 
-    -- Aqui você pode adicionar o resto da estrutura da Kavo (tabs, sections, etc)
-    -- Exemplo simples de tab para auto farm
-
-    local TabContainer = Instance.new("Frame")
-    TabContainer.Name = "Tabs"
-    TabContainer.Parent = Main
-    TabContainer.BackgroundTransparency = 1
-    TabContainer.Position = UDim2.new(0, 0, 0, 45)
-    TabContainer.Size = UDim2.new(1, 0, 1, -45)
-
-    local TabList = Instance.new("UIListLayout")
-    TabList.Parent = TabContainer
-    TabList.FillDirection = Enum.FillDirection.Horizontal
-    TabList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    TabList.SortOrder = Enum.SortOrder.LayoutOrder
-
-    -- Tab de Auto Farm (exemplo)
-    local AutoFarmTab = Instance.new("TextButton")
-    AutoFarmTab.Name = "AutoFarmTab"
-    AutoFarmTab.Parent = TabContainer
-    AutoFarmTab.BackgroundColor3 = themeList.SchemeColor
-    AutoFarmTab.Size = UDim2.new(0, 150, 0, 40)
-    AutoFarmTab.Font = Enum.Font.GothamSemibold
-    AutoFarmTab.Text = "Auto Farm"
-    AutoFarmTab.TextColor3 = themeList.TextColor
-    AutoFarmTab.TextSize = 18
-
-    local ContentFrame = Instance.new("ScrollingFrame")
-    ContentFrame.Name = "Content"
-    ContentFrame.Parent = Main
-    ContentFrame.BackgroundTransparency = 1
-    ContentFrame.Position = UDim2.new(0, 10, 0, 90)
-    ContentFrame.Size = UDim2.new(1, -20, 1, -100)
-    ContentFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    ContentFrame.ScrollBarThickness = 6
+    -- Conteúdo principal
+    local Content = Instance.new("ScrollingFrame")
+    Content.Parent = Main
+    Content.BackgroundTransparency = 1
+    Content.Position = UDim2.new(0, 10, 0, 50)
+    Content.Size = UDim2.new(1, -20, 1, -60)
+    Content.ScrollBarThickness = 6
 
     local ContentList = Instance.new("UIListLayout")
-    ContentList.Parent = ContentFrame
+    ContentList.Parent = Content
     ContentList.Padding = UDim.new(0, 8)
     ContentList.SortOrder = Enum.SortOrder.LayoutOrder
 
-    -- Função para atualizar canvas size
-    local function updateCanvas()
-        ContentFrame.CanvasSize = UDim2.new(0, 0, 0, ContentList.AbsoluteContentSize.Y + 20)
-    end
-
-    ContentList:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
-
-    -- Elementos de Auto Farm (exemplos)
-
+    -- Toggle AutoFarm
     local ToggleAuto = Instance.new("TextButton")
-    ToggleAuto.Name = "ToggleAuto"
-    ToggleAuto.Parent = ContentFrame
+    ToggleAuto.Parent = Content
     ToggleAuto.BackgroundColor3 = themeList.ElementColor
     ToggleAuto.Size = UDim2.new(1, 0, 0, 50)
     ToggleAuto.Font = Enum.Font.Gotham
@@ -212,46 +143,50 @@ function Kavo:CreateLib(kavName, themeList)
     local toggled = false
     ToggleAuto.MouseButton1Click:Connect(function()
         toggled = not toggled
-        ToggleAuto.Text = "Auto Farm: " .. (toggled and "ON" or "OFF")
-        -- Coloque aqui a lógica real do seu auto farm
+        ToggleAuto.Text = "Auto Farm: " .. (toggled and "ON ✅" or "OFF ❌")
         print("Auto Farm " .. (toggled and "ativado" or "desativado"))
     end)
 
-    local SliderSpeed = Instance.new("TextLabel")  -- Placeholder simples para slider (você pode expandir)
-    SliderSpeed.Parent = ContentFrame
-    SliderSpeed.BackgroundColor3 = themeList.ElementColor
-    SliderSpeed.Size = UDim2.new(1, 0, 0, 40)
-    SliderSpeed.Text = "Farm Speed: 1x"
-    SliderSpeed.TextColor3 = themeList.TextColor
-    SliderSpeed.TextSize = 18
+    -- Status Label
+    local Status = Instance.new("TextLabel")
+    Status.Parent = Content
+    Status.BackgroundTransparency = 1
+    Status.Size = UDim2.new(1, 0, 0, 40)
+    Status.Font = Enum.Font.GothamSemibold
+    Status.Text = "Status: Parado"
+    Status.TextColor3 = themeList.TextColor
+    Status.TextSize = 18
 
-    -- Mais elementos: buttons, toggles, etc para seu auto farm
-
-    local ButtonTeleport = Instance.new("TextButton")
-    ButtonTeleport.Parent = ContentFrame
-    ButtonTeleport.BackgroundColor3 = themeList.SchemeColor
-    ButtonTeleport.Size = UDim2.new(1, 0, 0, 50)
-    ButtonTeleport.Text = "Teleport to Farm Zone"
-    ButtonTeleport.TextColor3 = Color3.new(1,1,1)
-    ButtonTeleport.TextSize = 20
-
-    ButtonTeleport.MouseButton1Click:Connect(function()
-        -- Lógica de teleport aqui
-        print("Teleport executado!")
+    -- Inventário Button
+    local InvButton = Instance.new("TextButton")
+    InvButton.Parent = Content
+    InvButton.BackgroundColor3 = themeList.SchemeColor
+    InvButton.Size = UDim2.new(1, 0, 0, 40)
+    InvButton.Text = "Mostrar Inventário"
+    InvButton.TextColor3 = Color3.new(1,1,1)
+    InvButton.Font = Enum.Font.Gotham
+    InvButton.TextSize = 18
+    InvButton.MouseButton1Click:Connect(function()
+        print("Inventário listado!")
     end)
 
-    updateCanvas()
+    -- Easter Egg Button
+    local EggButton = Instance.new("TextButton")
+    EggButton.Parent = Content
+    EggButton.BackgroundColor3 = Color3.fromRGB(80, 0, 0)
+    EggButton.Size = UDim2.new(1, 0, 0, 40)
+    EggButton.Text = "???"
+    EggButton.TextColor3 = Color3.new(1,1,1)
+    EggButton.Font = Enum.Font.GothamBold
+    EggButton.TextSize = 20
+    EggButton.MouseButton1Click:Connect(function()
+        Status.Text = "Easter Egg encontrado 🐇🔥"
+        print("Você achou o segredo do hub!")
+    end)
 
-    print("bh4l pluh hub - Auto Farm UI carregada (Red Topo Style)")
+    print("bh4l pluh hub - Auto Farm UI carregada (Red Camouflage Style)")
     return Kavo
 end
 
 -- Inicializa a UI
-Kavo:CreateLib("bh4l pluh hub", RedDarkTopo)
-
--- Para toggle com tecla (ex: Insert)
-game:GetService("UserInputService").InputBegan:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.Insert then
-        Kavo:ToggleUI()
-    end
-end)
+Kavo:CreateLib("bh4l pluh hub", RedDarkCamouflage)
