@@ -53,6 +53,7 @@ local function equipItem(itemName)
     return false
 end
 
+-- Correção: removido o return para interagir com todos os cookpots
 local function pressE()
     pcall(function()
         local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
@@ -63,8 +64,8 @@ local function pressE()
                 local pp = att and att:FindFirstChild("ProximityPrompt")
                 if pp then
                     fireproximityprompt(pp)
-                    print("Pressionou E no Cooking Pot")
-                    return
+                    print("Pressionou E no Cooking Pot:", child.Name)
+                    -- não há mais return aqui, o loop continua
                 end
             end
         end
