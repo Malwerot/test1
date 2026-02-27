@@ -1,40 +1,56 @@
+-- Serviços principais
 local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
--- Carregar UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
-
--- Variáveis de controle
+-- Variáveis globais
 local autoFarmEnabled = false
-local farmThread = nil
+local farmConnection
+local currentIndex = 1
+local farmTimer = 0
+local equipPending = false
+local equipTimer = 0
+local EQUIP_DELAY = 0.3
 
--- Lista de itens e tempos
-local farmSteps = {
-    {item = "Water", delay = 0},
-    {item = "Sugar Block Bag", delay = 20},
-    {item = "Gelatin", delay = 0}, -- logo após o Sugar
-    {item = "Empty Bag", delay = 20} -- total 40s
+-- Lista de itens com cooldowns específicos
+local farmItems = {
+    {name = "Water", cooldown = 20},          -- espera 20s
+    {name = "Sugar Block Bag", cooldown = 2}, -- espera 2s
+    {name = "Gelatin", cooldown = 40},        -- espera 40s
+    {name = "Empty Bag", cooldown = 5},       -- exemplo: 5s
 }
 
--- Função para equipar item
+-- Funções utilitárias
+local function getInventory()
+    local allItems = {}
+    local backpack = LocalPlayer.Backpack
+    local character = LocalPlayer.Character
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then table.insert(allItems, item.Name) end
+    end
+    if character then
+        for _, item in ipairs(character:GetChildren()) do
+            if item:IsA("Tool") then table.insert(allItems, item.Name) end
+        end
+    end
+    return allItems
+end
+
 local function equipItem(itemName)
     local character = LocalPlayer.Character
     local tool = LocalPlayer.Backpack:FindFirstChild(itemName)
     if tool and character then
         local hum = character:FindFirstChild("Humanoid")
-        if hum then
-            hum:EquipTool(tool)
-            return true
-        end
+        if hum then hum:EquipTool(tool) return true end
     end
     return false
 end
 
--- Função para apertar E (Cooking Pot)
 local function pressE()
     pcall(function()
-        local interior = workspace.Map.Houses.WH1:FindFirstChild("Interior")
+        local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
         if not interior then return end
         for _, child in ipairs(interior:GetChildren()) do
             if child.Name == "Cooking Pot" then
@@ -46,49 +62,74 @@ local function pressE()
     end)
 end
 
--- Loop principal do autofarm
+-- Funções do autofarm
 local function startAutoFarm()
-    if farmThread then return end
-    farmThread = task.spawn(function()
-        while autoFarmEnabled do
-            for _, step in ipairs(farmSteps) do
-                if not autoFarmEnabled then break end
-                if step.delay > 0 then task.wait(step.delay) end
-                local success = equipItem(step.item)
-                if success then
-                    task.wait(0.3) -- delay de equip
-                    pressE()
-                    print("Usando item:", step.item)
-                else
-                    print("Item não encontrado:", step.item)
-                end
-            end
+    if farmConnection then farmConnection:Disconnect() end
+    farmTimer = 0
+    equipPending = false
+    currentIndex = 1
+
+    farmConnection = RunService.Heartbeat:Connect(function(dt)
+        if not autoFarmEnabled then
+            farmConnection:Disconnect()
+            farmConnection = nil
+            return
         end
-        farmThread = nil
+
+        farmTimer = farmTimer + dt
+
+        if equipPending then
+            equipTimer = equipTimer + dt
+            if equipTimer >= EQUIP_DELAY then
+                pressE()
+                equipPending = false
+                equipTimer = 0
+                farmTimer = 0
+            end
+
+        elseif farmTimer >= farmItems[currentIndex].cooldown then
+            local success = equipItem(farmItems[currentIndex].name)
+            if success then
+                equipPending = true
+                equipTimer = 0
+                currentIndex = currentIndex % #farmItems + 1
+            else
+                currentIndex = currentIndex % #farmItems + 1
+            end
+            farmTimer = 0
+        end
     end)
 end
 
 local function stopAutoFarm()
     autoFarmEnabled = false
+    if farmConnection then
+        farmConnection:Disconnect()
+        farmConnection = nil
+    end
 end
 
--- UI
-local Tab = Window:NewTab("AutoFarm")
-local Section = Tab:NewSection("Controle")
+-- UI (Kavo Library)
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
-Section:NewToggle("Ativar Autofarm", "", function(state)
+local TabFarm = Window:NewTab("AutoFarm")
+local SectionFarm = TabFarm:NewSection("Controle")
+
+SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", function(state)
     autoFarmEnabled = state
     if state then
+        currentIndex = 1
         startAutoFarm()
+        print("AutoFarm iniciado!")
     else
         stopAutoFarm()
+        print("AutoFarm parado!")
     end
 end)
 
-Section:NewButton("Inventário", "", function()
-    for i, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if item:IsA("Tool") then
-            print(i .. ". " .. item.Name)
-        end
+SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
+    for i, itemName in ipairs(getInventory()) do
+        print(i .. ". " .. itemName)
     end
 end)
