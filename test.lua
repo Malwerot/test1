@@ -1,5 +1,4 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- Carregar UI
@@ -8,14 +7,14 @@ local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
 -- Variáveis de controle
 local autoFarmEnabled = false
-local farmConnection = nil
+local farmThread = nil
 
 -- Lista de itens e tempos
 local farmSteps = {
     {item = "Water", delay = 0},
     {item = "Sugar Block Bag", delay = 20},
-    {item = "Gelatin", delay = 20},
-    {item = "Empty Bag", delay = 40}
+    {item = "Gelatin", delay = 0}, -- logo após o Sugar
+    {item = "Empty Bag", delay = 20} -- total 40s
 }
 
 -- Função para equipar item
@@ -47,18 +46,11 @@ local function pressE()
     end)
 end
 
--- Função principal de farm
+-- Loop principal do autofarm
 local function startAutoFarm()
-    if farmConnection then farmConnection:Disconnect() end
-    farmConnection = RunService.Heartbeat:Connect(function()
-        if not autoFarmEnabled then
-            farmConnection:Disconnect()
-            farmConnection = nil
-            return
-        end
-
-        -- Executa sequência
-        task.spawn(function()
+    if farmThread then return end
+    farmThread = task.spawn(function()
+        while autoFarmEnabled do
             for _, step in ipairs(farmSteps) do
                 if not autoFarmEnabled then break end
                 if step.delay > 0 then task.wait(step.delay) end
@@ -71,13 +63,13 @@ local function startAutoFarm()
                     print("Item não encontrado:", step.item)
                 end
             end
-        end)
+        end
+        farmThread = nil
     end)
 end
 
 local function stopAutoFarm()
     autoFarmEnabled = false
-    if farmConnection then farmConnection:Disconnect() farmConnection = nil end
 end
 
 -- UI
