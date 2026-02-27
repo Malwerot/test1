@@ -1,53 +1,102 @@
--- Autofarm Script
--- Coloque em StarterPlayerScripts para rodar no cliente
-
-local player = game.Players.LocalPlayer
-local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
-local ativo = true -- controle para desligar quando quiser
+-- Carregar UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
--- Função para simular apertar E
-local function apertarE()
-    UserInputService.InputBegan:Fire({
-        KeyCode = Enum.KeyCode.E,
-        UserInputType = Enum.UserInputType.Keyboard
-    }, false)
-end
+-- Variáveis de controle
+local autoFarmEnabled = false
+local farmConnection = nil
 
--- Função para pegar item
-local function pegarItem(nomeItem)
-    local mochila = player.Backpack
-    local item = mochila:FindFirstChild(nomeItem)
-    if item then
-        print("Pegando item:", nomeItem)
-        apertarE()
-    else
-        print("Item não encontrado:", nomeItem)
+-- Lista de itens e tempos
+local farmSteps = {
+    {item = "Water", delay = 0},
+    {item = "Sugar Block Bag", delay = 20},
+    {item = "Gelatin", delay = 20},
+    {item = "Empty Bag", delay = 40}
+}
+
+-- Função para equipar item
+local function equipItem(itemName)
+    local character = LocalPlayer.Character
+    local tool = LocalPlayer.Backpack:FindFirstChild(itemName)
+    if tool and character then
+        local hum = character:FindFirstChild("Humanoid")
+        if hum then
+            hum:EquipTool(tool)
+            return true
+        end
     end
+    return false
 end
 
--- Loop principal
-task.spawn(function()
-    while ativo do
-        -- 0 segundos: pegar Water
-        pegarItem("water")
-        apertarE()
+-- Função para apertar E (Cooking Pot)
+local function pressE()
+    pcall(function()
+        local interior = workspace.Map.Houses.WH1:FindFirstChild("Interior")
+        if not interior then return end
+        for _, child in ipairs(interior:GetChildren()) do
+            if child.Name == "Cooking Pot" then
+                local att = child:FindFirstChild("Attachment")
+                local pp = att and att:FindFirstChild("ProximityPrompt")
+                if pp then fireproximityprompt(pp) return end
+            end
+        end
+    end)
+end
 
-        -- Espera 20 segundos
-        task.wait(20)
+-- Função principal de farm
+local function startAutoFarm()
+    if farmConnection then farmConnection:Disconnect() end
+    farmConnection = RunService.Heartbeat:Connect(function()
+        if not autoFarmEnabled then
+            farmConnection:Disconnect()
+            farmConnection = nil
+            return
+        end
 
-        -- Pegar Sugar e Gelatin
-        pegarItem("sugar")
-        apertarE()
-        pegarItem("gelatin")
-        apertarE()
+        -- Executa sequência
+        task.spawn(function()
+            for _, step in ipairs(farmSteps) do
+                if not autoFarmEnabled then break end
+                if step.delay > 0 then task.wait(step.delay) end
+                local success = equipItem(step.item)
+                if success then
+                    task.wait(0.3) -- delay de equip
+                    pressE()
+                    print("Usando item:", step.item)
+                else
+                    print("Item não encontrado:", step.item)
+                end
+            end
+        end)
+    end)
+end
 
-        -- Espera mais 20 segundos (total 40)
-        task.wait(20)
+local function stopAutoFarm()
+    autoFarmEnabled = false
+    if farmConnection then farmConnection:Disconnect() farmConnection = nil end
+end
 
-        -- Pegar Empty Bag
-        pegarItem("empty bag")
-        apertarE()
+-- UI
+local Tab = Window:NewTab("AutoFarm")
+local Section = Tab:NewSection("Controle")
+
+Section:NewToggle("Ativar Autofarm", "", function(state)
+    autoFarmEnabled = state
+    if state then
+        startAutoFarm()
+    else
+        stopAutoFarm()
+    end
+end)
+
+Section:NewButton("Inventário", "", function()
+    for i, item in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if item:IsA("Tool") then
+            print(i .. ". " .. item.Name)
+        end
     end
 end)
