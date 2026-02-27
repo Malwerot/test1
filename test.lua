@@ -21,6 +21,10 @@ local farmItems = {
     {name = "Empty Bag", cooldown = 47},
 }
 
+-- Lista de cookpots encontrados
+local cookpots = {}
+local cookpotIndex = 1
+
 -- Funções utilitárias
 local function getInventory()
     local allItems = {}
@@ -53,23 +57,36 @@ local function equipItem(itemName)
     return false
 end
 
--- Correção: removido o return para interagir com todos os cookpots
-local function pressE()
-    pcall(function()
-        local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
-        if not interior then return end
-        for _, child in ipairs(interior:GetChildren()) do
-            if child.Name == "Cooking Pot" then
-                local att = child:FindFirstChild("Attachment")
-                local pp = att and att:FindFirstChild("ProximityPrompt")
-                if pp then
-                    fireproximityprompt(pp)
-                    print("Pressionou E no Cooking Pot:", child.Name)
-                    -- não há mais return aqui, o loop continua
+-- Função para procurar todos os cookpots no mapa
+local function findCookpots()
+    cookpots = {}
+    for _, house in ipairs(Workspace.Map.Houses:GetChildren()) do
+        local interior = house:FindFirstChild("Interior")
+        if interior then
+            for _, child in ipairs(interior:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then
+                        table.insert(cookpots, pp)
+                        print("Cookpot encontrado em:", house.Name)
+                    end
                 end
             end
         end
-    end)
+    end
+    cookpotIndex = 1
+end
+
+-- Interage apenas com o cookpot atual
+local function pressE()
+    if #cookpots == 0 then return end
+    local pp = cookpots[cookpotIndex]
+    if pp then
+        fireproximityprompt(pp)
+        print("Interagiu com cookpot número:", cookpotIndex)
+        cookpotIndex = cookpotIndex % #cookpots + 1
+    end
 end
 
 -- Autofarm
@@ -78,6 +95,9 @@ local function startAutoFarm()
     farmTimer = 0
     equipPending = false
     currentIndex = 1
+
+    -- procura cookpots antes de começar
+    findCookpots()
 
     farmConnection = RunService.Heartbeat:Connect(function(dt)
         if not autoFarmEnabled then
@@ -119,7 +139,7 @@ local function stopAutoFarm()
     end
 end
 
--- UI (depois que tudo está pronto)
+-- UI
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
 local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
@@ -142,4 +162,9 @@ SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     for i, itemName in ipairs(getInventory()) do
         print(i .. ". " .. itemName)
     end
+end)
+
+SectionFarm:NewButton("Recarregar Cookpots", "Procura novamente todos os cookpots no mapa", function()
+    findCookpots()
+    print("Lista de cookpots recarregada! Total:", #cookpots)
 end)
