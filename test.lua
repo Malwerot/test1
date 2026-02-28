@@ -116,6 +116,7 @@ local function stopAutoFarm()
 end
 
 -- contador de marshmallows possíveis
+local function countMarshmallows()
 local sugarCount = countItems("Sugar Block Bag")
 local waterCount = countItems("Water")
 local gelatinCount = countItems("Gelatin")
@@ -143,11 +144,12 @@ end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     getInventory()
+    for i, itemName in ipairs(inv) do
     end
 end)
 
 -- Botão para contar marshmallows
 SectionFarm:NewButton("Contar marshmallows", "Mostra quantos podem ser produzidos", function()
     local marshmallowCount = countMarshmallows()
-    SectionFarm:NewLabel("Você pode farmar até " .. marshmallowPossible .. " marshmallows")
+    SectionFarm:NewLabel("Você pode farmar até " .. marshmallowCount .. " marshmallows")
 end)
