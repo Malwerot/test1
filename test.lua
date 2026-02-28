@@ -181,8 +181,30 @@ SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     end
 end)
 
--- Botão para contar marshmallows e mostrar na UI
-SectionFarm:NewButton("Contar Marshmallows", "Mostra quantos podem ser produzidos", function()
-    local marshmallowCount = countMarshmallows()
-    SectionFarm:NewLabel("🍡 Você pode cozinhar até " .. marshmallowCount .. " marshmallows")
+-- Label único para mostrar marshmallows
+local marshmallowLabel = SectionFarm:NewLabel("🍡 Você pode cozinhar até 0 marshmallows")
+
+-- Variáveis para contador em tempo real
+local marshmallowCounting = false
+local marshmallowConnection
+
+-- Toggle para ativar/desativar contador em tempo real
+SectionFarm:NewToggle("Contador de Marshmallows", "Atualiza em tempo real", function(state)
+    marshmallowCounting = state
+
+    if state then
+        -- Ativa atualização contínua
+        if marshmallowConnection then marshmallowConnection:Disconnect() end
+        marshmallowConnection = RunService.Heartbeat:Connect(function()
+            if not marshmallowCounting then return end
+            local marshmallowCount = countMarshmallows()
+            marshmallowLabel:UpdateLabel("🍡 Você pode cozinhar até " .. marshmallowCount .. " marshmallows")
+        end)
+    else
+        -- Desativa atualização
+        if marshmallowConnection then
+            marshmallowConnection:Disconnect()
+            marshmallowConnection = nil
+        end
+    end
 end)
