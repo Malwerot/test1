@@ -143,7 +143,8 @@ end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     getInventory()
-end
+    end
+end)
 
 -- Botão para contar marshmallows
 SectionFarm:NewButton("Contar marshmallows", "Mostra quantos podem ser produzidos", function()
