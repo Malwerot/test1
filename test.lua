@@ -69,9 +69,10 @@ local function equipItem(itemName)
     return false
 end
 
--- Interagir com todos os Cooking Pots
+-- Interagir com todos os Cooking Pots (WH1 e todos os Apartments)
 local function pressE()
     pcall(function()
+        -- Cooking Pots da WH1
         local interiorWH1 = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
         if interiorWH1 then
             for _, child in ipairs(interiorWH1:GetChildren()) do
@@ -83,13 +84,18 @@ local function pressE()
             end
         end
 
-        local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
-        if home2 then
-            for _, child in ipairs(home2:GetChildren()) do
-                if child.Name == "Cooking Pot" then
-                    local att = child:FindFirstChild("Attachment")
-                    local pp = att and att:FindFirstChild("ProximityPrompt")
-                    if pp then fireproximityprompt(pp) end
+        -- Cooking Pots de todos os Apartments (Home 1, Home 2, Home 3, Home 4, etc.)
+        local apartments = Workspace.Map.Locations:FindFirstChild("Apartments")
+        if apartments then
+            for _, home in ipairs(apartments:GetChildren()) do
+                if home:IsA("Model") then
+                    for _, child in ipairs(home:GetChildren()) do
+                        if child.Name == "Cooking Pot" then
+                            local att = child:FindFirstChild("Attachment")
+                            local pp = att and att:FindFirstChild("ProximityPrompt")
+                            if pp then fireproximityprompt(pp) end
+                        end
+                    end
                 end
             end
         end
