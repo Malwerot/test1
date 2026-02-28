@@ -45,11 +45,9 @@ local function equipItem(itemName)
         local hum = character:FindFirstChild("Humanoid")
         if hum then
             hum:EquipTool(tool)
-            print("Equipado:", itemName)
             return true
         end
     end
-    print("Item não encontrado:", itemName)
     return false
 end
 
@@ -64,8 +62,6 @@ local function pressE()
                 local pp = att and att:FindFirstChild("ProximityPrompt")
                 if pp then
                     fireproximityprompt(pp)
-                    print("Pressionou E no Cooking Pot:", child.Name)
-                    -- não há mais return aqui, o loop continua
                 end
             end
         end
@@ -131,15 +127,11 @@ SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", functi
     if state then
         currentIndex = 1
         startAutoFarm()
-        print("AutoFarm iniciado!")
     else
         stopAutoFarm()
-        print("AutoFarm parado!")
     end
 end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
-    for i, itemName in ipairs(getInventory()) do
-        print(i .. ". " .. itemName)
-    end
+    getInventory()
 end)
