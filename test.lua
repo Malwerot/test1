@@ -153,7 +153,7 @@ SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", functi
     end
 end)
 
--- Botão de clique único para AutoSell
+-- Botão de clique único para AutoSell Lamont Bell
 SectionFarm:NewButton("AutoSell Lamont Bell", "Clique para vender instantaneamente", function()
     pressLamontBell()
 end)
