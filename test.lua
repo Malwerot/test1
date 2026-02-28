@@ -189,7 +189,7 @@ local marshmallowCounting = false
 local marshmallowConnection
 
 -- Toggle para ativar/desativar contador em tempo real
-SectionFarm:NewToggle("Contador de Marshmallows", "Atualiza em tempo real", function(state)
+SectionFarm:NewToggle("Contador de Marshmallows", "Liga/Desliga atualização em tempo real", function(state)
     marshmallowCounting = state
 
     if state then
