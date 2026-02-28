@@ -1,8 +1,11 @@
 -- Serviços
 local Workspace = game:GetService("Workspace")
 
+-- Variável de controle
+local distanceEnabled = false
+
 -- Função para interagir com o NPC FakeIDSeller de longe
-local function buyFakeIDFromDistance()
+local function interactFakeIDSeller()
     local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
     if npc then
         local torso = npc:FindFirstChild("UpperTorso")
@@ -10,16 +13,26 @@ local function buyFakeIDFromDistance()
             local att = torso:FindFirstChild("Attachment")
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
-                -- aumenta a distância máxima para interagir
-                pp.MaxActivationDistance = 9999
-                -- dispara o prompt mesmo sem estar perto
-                fireproximityprompt(pp)
+                if distanceEnabled then
+                    pp.MaxActivationDistance = 9999 -- aumenta distância
+                else
+                    pp.MaxActivationDistance = 10 -- valor padrão
+                end
             end
         end
     end
 end
 
--- Exemplo de uso: botão na UI
-SectionFakeID:NewButton("Comprar de longe", "Compra Fake ID sem precisar chegar perto", function()
-    buyFakeIDFromDistance()
+-- Carregar Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+
+-- Aba Fake ID
+local TabFakeID = Window:NewTab("Fake ID")
+local SectionFakeID = TabFakeID:NewSection("Controle")
+
+-- Toggle para aumentar distância de interação
+SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
+    distanceEnabled = state
+    interactFakeIDSeller()
 end)
