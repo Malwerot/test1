@@ -5,7 +5,6 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
 -- Variáveis globais
-local autoFarmEnabled = false
 local farmConnection
 local currentIndex = 1
 local farmTimer = 0
@@ -70,33 +69,27 @@ local function equipItem(itemName)
     return false
 end
 
--- Interagir com todos os Cooking Pots (WH1 e Home 2)
+-- Interagir com todos os Cooking Pots
 local function pressE()
     pcall(function()
-        -- Cooking Pots da WH1
         local interiorWH1 = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
         if interiorWH1 then
             for _, child in ipairs(interiorWH1:GetChildren()) do
                 if child.Name == "Cooking Pot" then
                     local att = child:FindFirstChild("Attachment")
                     local pp = att and att:FindFirstChild("ProximityPrompt")
-                    if pp then
-                        fireproximityprompt(pp)
-                    end
+                    if pp then fireproximityprompt(pp) end
                 end
             end
         end
 
-        -- Cooking Pots da Home 2 (Apartments)
         local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
         if home2 then
             for _, child in ipairs(home2:GetChildren()) do
                 if child.Name == "Cooking Pot" then
                     local att = child:FindFirstChild("Attachment")
                     local pp = att and att:FindFirstChild("ProximityPrompt")
-                    if pp then
-                        fireproximityprompt(pp)
-                    end
+                    if pp then fireproximityprompt(pp) end
                 end
             end
         end
@@ -111,12 +104,6 @@ local function startAutoFarm()
     currentIndex = 1
 
     farmConnection = RunService.Heartbeat:Connect(function(dt)
-        if not autoFarmEnabled then
-            farmConnection:Disconnect()
-            farmConnection = nil
-            return
-        end
-
         farmTimer = farmTimer + dt
 
         if equipPending then
@@ -143,11 +130,14 @@ local function startAutoFarm()
 end
 
 local function stopAutoFarm()
-    autoFarmEnabled = false
     if farmConnection then
         farmConnection:Disconnect()
         farmConnection = nil
     end
+    equipPending = false
+    equipTimer = 0
+    farmTimer = 0
+    currentIndex = 1
 end
 
 -- Função para contar marshmallows possíveis
@@ -158,7 +148,7 @@ local function countMarshmallows()
     return math.min(sugarCount, waterCount, gelatinCount)
 end
 
--- UI (depois que tudo está pronto)
+-- UI
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
 local Window = Library.CreateLib("Hard Gloves", "DarkTheme")
 
@@ -166,9 +156,7 @@ local TabFarm = Window:NewTab("AutoFarm")
 local SectionFarm = TabFarm:NewSection("Controle")
 
 SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", function(state)
-    autoFarmEnabled = state
     if state then
-        currentIndex = 1
         startAutoFarm()
     else
         stopAutoFarm()
@@ -186,23 +174,16 @@ end)
 local marshmallowLabel = SectionFarm:NewLabel("🍡 Você pode cozinhar até 0 marshmallows")
 
 -- Variáveis para contador em tempo real
-local marshmallowCounting = false
 local marshmallowConnection
 
--- Toggle para ativar/desativar contador em tempo real
 SectionFarm:NewToggle("Contador de Marshmallows", "Liga/Desliga atualização em tempo real", function(state)
-    marshmallowCounting = state
-
     if state then
-        -- Ativa atualização contínua
         if marshmallowConnection then marshmallowConnection:Disconnect() end
         marshmallowConnection = RunService.Heartbeat:Connect(function()
-            if not marshmallowCounting then return end
             local marshmallowCount = countMarshmallows()
             marshmallowLabel:UpdateLabel("🍡 Você pode cozinhar até " .. marshmallowCount .. " marshmallows")
         end)
     else
-        -- Desativa atualização
         if marshmallowConnection then
             marshmallowConnection:Disconnect()
             marshmallowConnection = nil
