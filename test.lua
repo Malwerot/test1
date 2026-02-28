@@ -163,7 +163,7 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwe
 local Window = Library.CreateLib("Hard Gloves", "DarkTheme")
 
 local TabFarm = Window:NewTab("AutoFarm")
-local TabFarm = Window:NewTab("Potato Helper")
+local PotatoFarm = Window:NewTab("Potato Helper")
 local SectionFarm = TabFarm:NewSection("Controle")
 
 SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", function(state)
