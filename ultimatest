@@ -37,28 +37,43 @@ end
 local farming = false
 local farmConnection
 
--- Carregar Kavo UI (library estável)
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+-- Carregar OrionLib
+local OrionLib = loadstring(game:HttpGet("https://raw.githubusercontent.com/shlexware/Orion/main/source"))()
+
+OrionLib:MakeNotification({
+    Name = "XFC AutoFarm",
+    Content = "UI carregada com sucesso!",
+    Image = "rbxassetid://4483345998",
+    Time = 5
+})
+
+local Window = OrionLib:MakeWindow({Name = "XFC AutoFarm", HidePremium = false, SaveConfig = true, ConfigFolder = "XFCFarm"})
 
 -- Aba Farm
-local TabFarm = Window:NewTab("Laboratório")
-local SectionFarm = TabFarm:NewSection("AutoFarm")
+local TabFarm = Window:MakeTab({
+    Name = "Laboratório",
+    Icon = "rbxassetid://4483345998",
+    PremiumOnly = false
+})
 
 -- Toggle para ligar/desligar farm
-SectionFarm:NewToggle("AutoFarm Laboratório", "Executa o ciclo de farm automaticamente", function(state)
-    farming = state
-    if state then
-        if farmConnection then farmConnection:Disconnect() end
-        farmConnection = RunService.Heartbeat:Connect(function()
-            if farming then
-                doFarmCycle()
+TabFarm:AddToggle({
+    Name = "AutoFarm Laboratório",
+    Default = false,
+    Callback = function(state)
+        farming = state
+        if state then
+            if farmConnection then farmConnection:Disconnect() end
+            farmConnection = RunService.Heartbeat:Connect(function()
+                if farming then
+                    doFarmCycle()
+                end
+            end)
+        else
+            if farmConnection then
+                farmConnection:Disconnect()
+                farmConnection = nil
             end
-        end)
-    else
-        if farmConnection then
-            farmConnection:Disconnect()
-            farmConnection = nil
         end
     end
-end)
+})
