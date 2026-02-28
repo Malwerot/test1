@@ -1,20 +1,11 @@
 -- Serviços
-local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
 
--- Variáveis locais
-local fakeIDCount = 0
-local maxFakeIDs = 2
-local selectedAmount = 1
-local fakeIDLabel
-local autoBuy = false
-local autoBuyConnection
+-- Variável de controle
 local distanceEnabled = false
 
--- Função para comprar Fake IDs (simulação local)
-local function buyFakeIDs(amount)
+-- Função para interagir com o NPC FakeIDSeller de longe
+local function interactFakeIDSeller()
     local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
     if npc then
         local torso = npc:FindFirstChild("UpperTorso")
@@ -22,17 +13,10 @@ local function buyFakeIDs(amount)
             local att = torso:FindFirstChild("Attachment")
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
-                -- Se o toggle estiver ligado, aumenta a distância
                 if distanceEnabled then
-                    pp.MaxActivationDistance = 9999
-                end
-                for i = 1, amount do
-                    if fakeIDCount < maxFakeIDs then
-                        fireproximityprompt(pp)
-                        fakeIDCount = fakeIDCount + 1
-                        fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
-                        task.wait(0.2)
-                    end
+                    pp.MaxActivationDistance = 9999 -- aumenta distância
+                else
+                    pp.MaxActivationDistance = 10 -- valor padrão
                 end
             end
         end
@@ -47,52 +31,8 @@ local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 local TabFakeID = Window:NewTab("Fake ID")
 local SectionFakeID = TabFakeID:NewSection("Controle")
 
--- Label único
-fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
-
--- Slider para escolher quantidade
-SectionFakeID:NewSlider("Quantidade", "Quantos Fake IDs comprar", 1, maxFakeIDs, 1, function(val)
-    selectedAmount = val
-end)
-
--- Botão para comprar
-SectionFakeID:NewButton("Comprar Fake IDs", "Compra a quantidade escolhida", function()
-    buyFakeIDs(selectedAmount)
-end)
-
--- Toggle para compra automática
-SectionFakeID:NewToggle("AutoBuy Fake IDs", "Compra automaticamente em loop", function(state)
-    autoBuy = state
-    if state then
-        if autoBuyConnection then autoBuyConnection:Disconnect() end
-        autoBuyConnection = RunService.Heartbeat:Connect(function()
-            if autoBuy then
-                buyFakeIDs(1)
-            end
-        end)
-    else
-        if autoBuyConnection then
-            autoBuyConnection:Disconnect()
-            autoBuyConnection = nil
-        end
-    end
-end)
-
--- Botão para remover Fake ID
-SectionFakeID:NewButton("Remover Fake ID", "Remove 1 Fake ID do contador", function()
-    if fakeIDCount > 0 then
-        fakeIDCount = fakeIDCount - 1
-        fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
-    end
-end)
-
--- Botão para resetar Fake IDs
-SectionFakeID:NewButton("Resetar Fake IDs", "Zera o contador de Fake IDs", function()
-    fakeIDCount = 0
-    fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
-end)
-
 -- Toggle para aumentar distância de interação
 SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
     distanceEnabled = state
+    interactFakeIDSeller()
 end)
