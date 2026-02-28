@@ -1,8 +1,9 @@
 -- Serviços
 local Workspace = game:GetService("Workspace")
 
--- Variável de controle
+-- Variáveis de controle
 local distanceEnabled = false
+local forceInteraction = false
 
 -- Função para interagir com o NPC FakeIDSeller de longe
 local function interactFakeIDSeller()
@@ -13,10 +14,16 @@ local function interactFakeIDSeller()
             local att = torso:FindFirstChild("Attachment")
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
+                -- Ajusta distância
                 if distanceEnabled then
-                    pp.MaxActivationDistance = 9999 -- aumenta distância
+                    pp.MaxActivationDistance = 9999
                 else
-                    pp.MaxActivationDistance = 10 -- valor padrão
+                    pp.MaxActivationDistance = 10
+                end
+
+                -- Força interação mesmo em animação
+                if forceInteraction then
+                    fireproximityprompt(pp)
                 end
             end
         end
@@ -34,5 +41,11 @@ local SectionFakeID = TabFakeID:NewSection("Controle")
 -- Toggle para aumentar distância de interação
 SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
     distanceEnabled = state
+    interactFakeIDSeller()
+end)
+
+-- Toggle para forçar interação mesmo em animação
+SectionFakeID:NewToggle("Forçar Interação", "NPC reage mesmo se estiver em animação", function(state)
+    forceInteraction = state
     interactFakeIDSeller()
 end)
