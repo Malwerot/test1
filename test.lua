@@ -165,8 +165,9 @@ local Window = Library.CreateLib("Hard Gloves", "DarkTheme")
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/loggeer/refs/heads/main/sell"))()
 
 local TabFarm = Window:NewTab("AutoFarm")
-local PotatoFarm = Window:NewTab("Potato Helper")
+local PotatoFarm = Window:NewTab("PotatoHelper")
 local SectionFarm = TabFarm:NewSection("Controle")
+local SectionFarmPotato = PotatoFarm:NewSection("Vô do silver aí")
 
 SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", function(state)
     autoFarmEnabled = state
