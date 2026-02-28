@@ -1,0 +1,62 @@
+-- Serviços
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+-- Lista de etapas do farm (ordem fixa)
+local farmSteps = {
+    {prompt = Workspace.Map.Locations["The Laboratory"].Prompts.Clipboard.ProximityPrompt, item = nil},
+    {prompt = Workspace.Map.Locations["The Laboratory"].CuttingBoards["Potato Cutter"].Model.Union.Attachment.ProximityPrompt, item = "Potato"},
+    {prompt = Workspace.Map.Locations["The Laboratory"].Prompts["Plastic Bag"].Attachment.ProximityPrompt, item = nil},
+    {prompt = Workspace.Map.Locations["The Laboratory"].Bowls.Union.ProximityPrompt, item = "Flour"},
+    {prompt = Workspace.Map.Locations["The Laboratory"].Pots.Pot.ProximityPrompt, item = nil}
+}
+
+-- Função para verificar se o player tem o item necessário
+local function hasItem(itemName)
+    if not itemName then return true end
+    local backpack = game.Players.LocalPlayer:FindFirstChild("Backpack")
+    if backpack and backpack:FindFirstChild(itemName) then
+        return true
+    end
+    return false
+end
+
+-- Função para executar o ciclo de farm
+local function doFarmCycle()
+    for _, step in ipairs(farmSteps) do
+        if step.prompt and hasItem(step.item) then
+            fireproximityprompt(step.prompt)
+            task.wait(0.3)
+        end
+    end
+end
+
+-- Controle de loop
+local farming = false
+local farmConnection
+
+-- Carregar Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+
+-- Aba Farm
+local TabFarm = Window:NewTab("Laboratório")
+local SectionFarm = TabFarm:NewSection("AutoFarm")
+
+-- Toggle para ligar/desligar farm
+SectionFarm:NewToggle("AutoFarm Laboratório", "Executa o ciclo de farm automaticamente", function(state)
+    farming = state
+    if state then
+        if farmConnection then farmConnection:Disconnect() end
+        farmConnection = RunService.Heartbeat:Connect(function()
+            if farming then
+                doFarmCycle()
+            end
+        end)
+    else
+        if farmConnection then
+            farmConnection:Disconnect()
+            farmConnection = nil
+        end
+    end
+end)
