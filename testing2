@@ -1,19 +1,16 @@
--- UI principal
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
-local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
-
--- Aba Fake ID
-local TabFakeID = Window:NewTab("Fake ID")
-local SectionFakeID = TabFakeID:NewSection("Controle")
+-- Serviços
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
 
 -- Variáveis locais
 local fakeIDCount = 0
 local maxFakeIDs = 2
 local selectedAmount = 1
 local fakeIDLabel
-
--- Label único
-fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
+local autoBuy = false
+local autoBuyConnection
 
 -- Função para comprar Fake IDs
 local function buyFakeIDs(amount)
@@ -37,6 +34,17 @@ local function buyFakeIDs(amount)
     end
 end
 
+-- Carregar Kavo UI
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+
+-- Aba Fake ID
+local TabFakeID = Window:NewTab("Fake ID")
+local SectionFakeID = TabFakeID:NewSection("Controle")
+
+-- Label único
+fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
+
 -- Slider para escolher quantidade
 SectionFakeID:NewSlider("Quantidade", "Quantos Fake IDs comprar", 1, maxFakeIDs, 1, function(val)
     selectedAmount = val
@@ -48,9 +56,6 @@ SectionFakeID:NewButton("Comprar Fake IDs", "Compra a quantidade escolhida", fun
 end)
 
 -- Toggle para compra automática
-local autoBuy = false
-local autoBuyConnection
-
 SectionFakeID:NewToggle("AutoBuy Fake IDs", "Compra automaticamente em loop", function(state)
     autoBuy = state
     if state then
