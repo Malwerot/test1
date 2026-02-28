@@ -87,8 +87,7 @@ local function pressE()
             end
         end
 
-        -- Cooking Pot da Home 2 (Apartments)
-         -- Cooking Pots da WH1
+        -- Cooking Pots da Home 2 (Apartments)
         local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
         if home2 then
             for _, child in ipairs(home2:GetChildren()) do
@@ -97,11 +96,11 @@ local function pressE()
                     local pp = att and att:FindFirstChild("ProximityPrompt")
                     if pp then
                         fireproximityprompt(pp)
+                    end
+                end
             end
-          end
         end
-    end
-end)
+    end)
 end
 
 -- Autofarm
