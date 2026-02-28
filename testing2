@@ -1,14 +1,8 @@
 -- Serviços
 local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- Variável de controle para interação de longe
-local distanceEnabled = false
 
 -- Função para interagir com o NPC FakeIDSeller de longe
-local function interactFakeIDSeller()
+local function buyFakeIDFromDistance()
     local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
     if npc then
         local torso = npc:FindFirstChild("UpperTorso")
@@ -16,81 +10,16 @@ local function interactFakeIDSeller()
             local att = torso:FindFirstChild("Attachment")
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
-                if distanceEnabled then
-                    pp.MaxActivationDistance = 9999 -- aumenta distância
-                else
-                    pp.MaxActivationDistance = 10 -- valor padrão
-                end
+                -- aumenta a distância máxima para interagir
+                pp.MaxActivationDistance = 9999
+                -- dispara o prompt mesmo sem estar perto
+                fireproximityprompt(pp)
             end
         end
     end
 end
 
--- Lista de etapas do farm (ordem fixa)
-local farmSteps = {
-    {prompt = Workspace.Map.Locations["The Laboratory"].Prompts.Clipboard.ProximityPrompt, item = nil},
-    {prompt = Workspace.Map.Locations["The Laboratory"].CuttingBoards["Potato Cutter"].Model.Union.Attachment.ProximityPrompt, item = "Potato"},
-    {prompt = Workspace.Map.Locations["The Laboratory"].Prompts["Plastic Bag"].Attachment.ProximityPrompt, item = nil},
-    {prompt = Workspace.Map.Locations["The Laboratory"].Bowls.Union.ProximityPrompt, item = "Flour"},
-    {prompt = Workspace.Map.Locations["The Laboratory"].Pots.Pot.ProximityPrompt, item = nil}
-}
-
--- Função para verificar se o player tem o item necessário
-local function hasItem(itemName)
-    if not itemName then return true end
-    local backpack = LocalPlayer:FindFirstChild("Backpack")
-    if backpack and backpack:FindFirstChild(itemName) then
-        return true
-    end
-    return false
-end
-
--- Função para executar o ciclo de farm
-local function doFarmCycle()
-    for _, step in ipairs(farmSteps) do
-        if step.prompt and hasItem(step.item) then
-            fireproximityprompt(step.prompt)
-            task.wait(0.3)
-        end
-    end
-end
-
--- Controle de loop
-local farming = false
-local farmConnection
-
--- Carregar Kavo UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
-
--- Aba Fake ID
-local TabFakeID = Window:NewTab("Fake ID")
-local SectionFakeID = TabFakeID:NewSection("Controle")
-
--- Toggle para aumentar distância de interação
-SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
-    distanceEnabled = state
-    interactFakeIDSeller()
-end)
-
--- Aba Laboratório
-local TabFarm = Window:NewTab("Laboratório")
-local SectionFarm = TabFarm:NewSection("AutoFarm")
-
--- Toggle para ligar/desligar farm
-SectionFarm:NewToggle("AutoFarm Laboratório", "Executa o ciclo de farm automaticamente", function(state)
-    farming = state
-    if state then
-        if farmConnection then farmConnection:Disconnect() end
-        farmConnection = RunService.Heartbeat:Connect(function()
-            if farming then
-                doFarmCycle()
-            end
-        end)
-    else
-        if farmConnection then
-            farmConnection:Disconnect()
-            farmConnection = nil
-        end
-    end
+-- Exemplo de uso: botão na UI
+SectionFakeID:NewButton("Comprar de longe", "Compra Fake ID sem precisar chegar perto", function()
+    buyFakeIDFromDistance()
 end)
