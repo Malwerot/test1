@@ -36,7 +36,7 @@ local farming = false
 local farmConnection
 
 -- Carregar Kavo UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
 local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 
 -- Aba Farm
