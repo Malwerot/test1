@@ -160,9 +160,10 @@ end
 
 -- UI (depois que tudo está pronto)
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
-local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+local Window = Library.CreateLib("Hard Gloves", "DarkTheme")
 
 local TabFarm = Window:NewTab("AutoFarm")
+local TabFarm = Window:NewTab("Potato Helper")
 local SectionFarm = TabFarm:NewSection("Controle")
 
 SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", function(state)
