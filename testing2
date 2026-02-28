@@ -1,0 +1,63 @@
+-- Variável local para simular Fake IDs
+local fakeIDCount = 0
+local maxFakeIDs = 2
+
+-- Função para comprar Fake IDs
+local function buyFakeIDs(amount)
+    local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
+    if npc then
+        local torso = npc:FindFirstChild("UpperTorso")
+        if torso then
+            local att = torso:FindFirstChild("Attachment")
+            local pp = att and att:FindFirstChild("ProximityPrompt")
+            if pp then
+                for i = 1, amount do
+                    if fakeIDCount < maxFakeIDs then
+                        fireproximityprompt(pp)
+                        fakeIDCount = fakeIDCount + 1
+                        fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
+                        task.wait(0.2) -- delay pra não bugar
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- UI
+local TabFakeID = Window:NewTab("Fake ID")
+local SectionFakeID = TabFakeID:NewSection("Controle")
+
+-- Label único
+fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: 0/"..maxFakeIDs)
+
+-- Slider para escolher quantidade
+local fakeIDSlider = SectionFakeID:NewSlider("Quantidade", "Quantos Fake IDs comprar", 1, maxFakeIDs, 1, function(val)
+    selectedAmount = val
+end)
+
+-- Botão para comprar
+SectionFakeID:NewButton("Comprar Fake IDs", "Compra a quantidade escolhida", function()
+    buyFakeIDs(selectedAmount or 1)
+end)
+
+-- Toggle para compra automática
+local autoBuy = false
+local autoBuyConnection
+
+SectionFakeID:NewToggle("AutoBuy Fake IDs", "Compra automaticamente em loop", function(state)
+    autoBuy = state
+    if state then
+        if autoBuyConnection then autoBuyConnection:Disconnect() end
+        autoBuyConnection = RunService.Heartbeat:Connect(function()
+            if autoBuy then
+                buyFakeIDs(1)
+            end
+        end)
+    else
+        if autoBuyConnection then
+            autoBuyConnection:Disconnect()
+            autoBuyConnection = nil
+        end
+    end
+end)
