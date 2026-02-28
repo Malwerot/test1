@@ -69,10 +69,10 @@ local function equipItem(itemName)
     return false
 end
 
--- Interagir com todos os Cooking Pots (WH1 e todos os Apartments)
+-- Interagir com Cooking Pots (WH1 e Homes 1 a 4)
 local function pressE()
     pcall(function()
-        -- Cooking Pots da WH1
+        -- WH1
         local interiorWH1 = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
         if interiorWH1 then
             for _, child in ipairs(interiorWH1:GetChildren()) do
@@ -84,18 +84,50 @@ local function pressE()
             end
         end
 
-        -- Cooking Pots de todos os Apartments (Home 1, Home 2, Home 3, Home 4, etc.)
-        local apartments = Workspace.Map.Locations:FindFirstChild("Apartments")
-        if apartments then
-            for _, home in ipairs(apartments:GetChildren()) do
-                if home:IsA("Model") then
-                    for _, child in ipairs(home:GetChildren()) do
-                        if child.Name == "Cooking Pot" then
-                            local att = child:FindFirstChild("Attachment")
-                            local pp = att and att:FindFirstChild("ProximityPrompt")
-                            if pp then fireproximityprompt(pp) end
-                        end
-                    end
+        -- Home 1
+        local home1 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 1")
+        if home1 then
+            for _, child in ipairs(home1:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 2
+        local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
+        if home2 then
+            for _, child in ipairs(home2:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 3
+        local home3 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 3")
+        if home3 then
+            for _, child in ipairs(home3:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 4
+        local home4 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 4")
+        if home4 then
+            for _, child in ipairs(home4:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
                 end
             end
         end
