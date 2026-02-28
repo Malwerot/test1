@@ -11,6 +11,7 @@ local selectedAmount = 1
 local fakeIDLabel
 local autoBuy = false
 local autoBuyConnection
+local distanceEnabled = false
 
 -- Função para comprar Fake IDs (simulação local)
 local function buyFakeIDs(amount)
@@ -21,6 +22,10 @@ local function buyFakeIDs(amount)
             local att = torso:FindFirstChild("Attachment")
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
+                -- Se o toggle estiver ligado, aumenta a distância
+                if distanceEnabled then
+                    pp.MaxActivationDistance = 9999
+                end
                 for i = 1, amount do
                     if fakeIDCount < maxFakeIDs then
                         fireproximityprompt(pp)
@@ -85,4 +90,9 @@ end)
 SectionFakeID:NewButton("Resetar Fake IDs", "Zera o contador de Fake IDs", function()
     fakeIDCount = 0
     fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
+end)
+
+-- Toggle para aumentar distância de interação
+SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
+    distanceEnabled = state
 end)
