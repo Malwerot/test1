@@ -6,13 +6,11 @@ local LocalPlayer = Players.LocalPlayer
 
 -- Variáveis globais
 local farmConnection
-local autoSellConnection
 local currentIndex = 1
 local farmTimer = 0
 local equipPending = false
 local equipTimer = 0
 local EQUIP_DELAY = 0.3
-local autoSellEnabled = false
 
 -- Lista de itens com cooldowns específicos
 local farmItems = {
@@ -132,21 +130,6 @@ local function stopAutoFarm()
     currentIndex = 1
 end
 
--- AutoSell
-local function startAutoSell()
-    if autoSellConnection then autoSellConnection:Disconnect() end
-    autoSellConnection = RunService.Heartbeat:Connect(function()
-        pressLamontBell()
-    end)
-end
-
-local function stopAutoSell()
-    if autoSellConnection then
-        autoSellConnection:Disconnect()
-        autoSellConnection = nil
-    end
-end
-
 -- Função para contar marshmallows possíveis
 local function countMarshmallows()
     local sugarCount = countItems("Sugar Block Bag")
@@ -170,13 +153,9 @@ SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", functi
     end
 end)
 
-SectionFarm:NewToggle("AutoSell Lamont Bell", "Liga/Desliga venda automática", function(state)
-    autoSellEnabled = state
-    if state then
-        startAutoSell()
-    else
-        stopAutoSell()
-    end
+-- Botão de clique único para AutoSell
+SectionFarm:NewButton("AutoSell Lamont Bell", "Clique para vender instantaneamente", function()
+    pressLamontBell()
 end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
