@@ -37,6 +37,25 @@ local function getInventory()
     return allItems
 end
 
+local function countItems(itemName)
+    local count = 0
+    local backpack = LocalPlayer.Backpack
+    local character = LocalPlayer.Character
+    for _, item in ipairs(backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name == itemName then
+            count = count + 1
+        end
+    end
+    if character then
+        for _, item in ipairs(character:GetChildren()) do
+            if item:IsA("Tool") and item.Name == itemName then
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
 local function equipItem(itemName)
     local character = LocalPlayer.Character
     if not character then return false end
@@ -51,14 +70,29 @@ local function equipItem(itemName)
     return false
 end
 
--- Correção: removido o return para interagir com todos os cookpots
+-- Interagir com todos os Cooking Pots (WH1 e Home 2)
 local function pressE()
     pcall(function()
-        local interior = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
-        if not interior then return end
-        for _, child in ipairs(interior:GetChildren()) do
-            if child.Name == "Cooking Pot" then
-                local att = child:FindFirstChild("Attachment")
+        -- Cooking Pots da WH1
+        local interiorWH1 = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
+        if interiorWH1 then
+            for _, child in ipairs(interiorWH1:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then
+                        fireproximityprompt(pp)
+                    end
+                end
+            end
+        end
+
+        -- Cooking Pot da Home 2 (Apartments)
+        local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
+        if home2 then
+            local cookpot = home2:FindFirstChild("Cooking Pot")
+            if cookpot then
+                local att = cookpot:FindFirstChild("Attachment")
                 local pp = att and att:FindFirstChild("ProximityPrompt")
                 if pp then
                     fireproximityprompt(pp)
@@ -117,12 +151,11 @@ end
 
 -- contador de marshmallows possíveis
 local function countMarshmallows()
-local sugarCount = countItems("Sugar Block Bag")
-local waterCount = countItems("Water")
-local gelatinCount = countItems("Gelatin")
-
-local marshmallowPossible = math.min(sugarCount, waterCount, gelatinCount)
-return marshmallowPossible
+    local sugarCount = countItems("Sugar Block Bag")
+    local waterCount = countItems("Water")
+    local gelatinCount = countItems("Gelatin")
+    local marshmallowPossible = math.min(sugarCount, waterCount, gelatinCount)
+    return marshmallowPossible
 end
 
 -- UI (depois que tudo está pronto)
@@ -143,13 +176,16 @@ SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", functi
 end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
-    getInventory()
+    local inv = getInventory()
     for i, itemName in ipairs(inv) do
+        -- Aqui você pode adaptar para mostrar na UI se quiser
     end
 end)
 
--- Botão para contar marshmallows
-SectionFarm:NewButton("Contar marshmallows", "Mostra quantos podem ser produzidos", function()
+-- Barrinha de marshmallows
+local marshmallowBar = SectionFarm:NewSlider("Marshmallows possíveis", "Quantidade que pode ser produzida", 0, 100, 0, function() end)
+
+SectionFarm:NewButton("Contar Marshmallows", "Atualiza a barrinha com o valor", function()
     local marshmallowCount = countMarshmallows()
-    SectionFarm:NewLabel("Você pode farmar até " .. marshmallowCount .. " marshmallows")
+    marshmallowBar:Update(marshmallowCount)
 end)
