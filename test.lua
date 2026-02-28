@@ -149,13 +149,12 @@ local function stopAutoFarm()
     end
 end
 
--- contador de marshmallows possíveis
+-- Função para contar marshmallows possíveis
 local function countMarshmallows()
     local sugarCount = countItems("Sugar Block Bag")
     local waterCount = countItems("Water")
     local gelatinCount = countItems("Gelatin")
-    local marshmallowPossible = math.min(sugarCount, waterCount, gelatinCount)
-    return marshmallowPossible
+    return math.min(sugarCount, waterCount, gelatinCount)
 end
 
 -- UI (depois que tudo está pronto)
@@ -182,10 +181,8 @@ SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     end
 end)
 
--- Barrinha de marshmallows
-local marshmallowBar = SectionFarm:NewSlider("Marshmallows possíveis", "Quantidade que pode ser produzida", 0, 100, 0, function() end)
-
-SectionFarm:NewButton("Contar Marshmallows", "Atualiza a barrinha com o valor", function()
+-- Botão para contar marshmallows e mostrar na UI
+SectionFarm:NewButton("Contar Marshmallows", "Mostra quantos podem ser produzidos", function()
     local marshmallowCount = countMarshmallows()
-    marshmallowBar:Update(marshmallowCount)
+    SectionFarm:NewLabel("🍡 Você pode cozinhar até " .. marshmallowCount .. " marshmallows")
 end)
