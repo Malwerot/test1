@@ -1,6 +1,19 @@
--- Variável local para simular Fake IDs
+-- UI principal
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
+local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
+
+-- Aba Fake ID
+local TabFakeID = Window:NewTab("Fake ID")
+local SectionFakeID = TabFakeID:NewSection("Controle")
+
+-- Variáveis locais
 local fakeIDCount = 0
 local maxFakeIDs = 2
+local selectedAmount = 1
+local fakeIDLabel
+
+-- Label único
+fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
 
 -- Função para comprar Fake IDs
 local function buyFakeIDs(amount)
@@ -16,7 +29,7 @@ local function buyFakeIDs(amount)
                         fireproximityprompt(pp)
                         fakeIDCount = fakeIDCount + 1
                         fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
-                        task.wait(0.2) -- delay pra não bugar
+                        task.wait(0.2)
                     end
                 end
             end
@@ -24,21 +37,14 @@ local function buyFakeIDs(amount)
     end
 end
 
--- UI
-local TabFakeID = Window:NewTab("Fake ID")
-local SectionFakeID = TabFakeID:NewSection("Controle")
-
--- Label único
-fakeIDLabel = SectionFakeID:NewLabel("🪪 Fake IDs: 0/"..maxFakeIDs)
-
 -- Slider para escolher quantidade
-local fakeIDSlider = SectionFakeID:NewSlider("Quantidade", "Quantos Fake IDs comprar", 1, maxFakeIDs, 1, function(val)
+SectionFakeID:NewSlider("Quantidade", "Quantos Fake IDs comprar", 1, maxFakeIDs, 1, function(val)
     selectedAmount = val
 end)
 
 -- Botão para comprar
 SectionFakeID:NewButton("Comprar Fake IDs", "Compra a quantidade escolhida", function()
-    buyFakeIDs(selectedAmount or 1)
+    buyFakeIDs(selectedAmount)
 end)
 
 -- Toggle para compra automática
