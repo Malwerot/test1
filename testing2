@@ -12,7 +12,7 @@ local fakeIDLabel
 local autoBuy = false
 local autoBuyConnection
 
--- Função para comprar Fake IDs
+-- Função para comprar Fake IDs (simulação local)
 local function buyFakeIDs(amount)
     local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
     if npc then
@@ -71,4 +71,18 @@ SectionFakeID:NewToggle("AutoBuy Fake IDs", "Compra automaticamente em loop", fu
             autoBuyConnection = nil
         end
     end
+end)
+
+-- Botão para remover Fake ID
+SectionFakeID:NewButton("Remover Fake ID", "Remove 1 Fake ID do contador", function()
+    if fakeIDCount > 0 then
+        fakeIDCount = fakeIDCount - 1
+        fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
+    end
+end)
+
+-- Botão para resetar Fake IDs
+SectionFakeID:NewButton("Resetar Fake IDs", "Zera o contador de Fake IDs", function()
+    fakeIDCount = 0
+    fakeIDLabel:UpdateLabel("🪪 Fake IDs: "..fakeIDCount.."/"..maxFakeIDs)
 end)
