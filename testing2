@@ -2,10 +2,12 @@
 local Workspace = game:GetService("Workspace")
 
 -- Variáveis de controle
-local distanceEnabled = false
-local forceInteraction = false
+local distanceEnabledFakeID = false
+local forceInteractionFakeID = false
+local distanceEnabledBank = false
+local forceInteractionBank = false
 
--- Função para interagir com o NPC FakeIDSeller de longe
+-- Função para interagir com o NPC FakeIDSeller
 local function interactFakeIDSeller()
     local npc = Workspace.Folders.NPCs:FindFirstChild("FakeIDSeller")
     if npc then
@@ -15,14 +17,47 @@ local function interactFakeIDSeller()
             local pp = att and att:FindFirstChild("ProximityPrompt")
             if pp then
                 -- Ajusta distância
-                if distanceEnabled then
+                if distanceEnabledFakeID then
                     pp.MaxActivationDistance = 9999
                 else
                     pp.MaxActivationDistance = 10
                 end
 
-                -- Força interação mesmo em animação
-                if forceInteraction then
+                -- Força prompt aparecer mesmo em animação
+                pp.RequiresLineOfSight = false
+                pp.Enabled = true
+
+                -- Se toggle estiver ligado, dispara interação
+                if forceInteractionFakeID then
+                    fireproximityprompt(pp)
+                end
+            end
+        end
+    end
+end
+
+-- Função para interagir com o NPC Bank Teller
+local function interactBankTeller()
+    local npc = Workspace.Folders.NPCs:FindFirstChild("Bank Teller")
+    if npc then
+        local torso = npc:FindFirstChild("UpperTorso")
+        if torso then
+            local att = torso:FindFirstChild("Attachment")
+            local pp = att and att:FindFirstChild("ProximityPrompt")
+            if pp then
+                -- Ajusta distância
+                if distanceEnabledBank then
+                    pp.MaxActivationDistance = 9999
+                else
+                    pp.MaxActivationDistance = 10
+                end
+
+                -- Força prompt aparecer mesmo em animação
+                pp.RequiresLineOfSight = false
+                pp.Enabled = true
+
+                -- Se toggle estiver ligado, dispara interação
+                if forceInteractionBank then
                     fireproximityprompt(pp)
                 end
             end
@@ -38,14 +73,26 @@ local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
 local TabFakeID = Window:NewTab("Fake ID")
 local SectionFakeID = TabFakeID:NewSection("Controle")
 
--- Toggle para aumentar distância de interação
 SectionFakeID:NewToggle("Interagir de longe", "Permite comprar Fake IDs sem estar perto", function(state)
-    distanceEnabled = state
+    distanceEnabledFakeID = state
     interactFakeIDSeller()
 end)
 
--- Toggle para forçar interação mesmo em animação
-SectionFakeID:NewToggle("Forçar Interação", "NPC reage mesmo se estiver em animação", function(state)
-    forceInteraction = state
+SectionFakeID:NewToggle("Forçar Interação", "NPC reage mesmo durante animação", function(state)
+    forceInteractionFakeID = state
     interactFakeIDSeller()
+end)
+
+-- Aba Bank Teller
+local TabBank = Window:NewTab("Bank Teller")
+local SectionBank = TabBank:NewSection("Controle")
+
+SectionBank:NewToggle("Interagir de longe", "Permite falar com o Bank Teller sem estar perto", function(state)
+    distanceEnabledBank = state
+    interactBankTeller()
+end)
+
+SectionBank:NewToggle("Forçar Interação", "NPC reage mesmo durante animação", function(state)
+    forceInteractionBank = state
+    interactBankTeller()
 end)
