@@ -115,6 +115,15 @@ local function stopAutoFarm()
     end
 end
 
+-- contador de marshmallows possíveis
+local sugarCount = countItems("Sugar Block Bag")
+local waterCount = countItems("Water")
+local gelatinCount = countItems("Gelatin")
+
+local marshmallowPossible = math.min(sugarCount, waterCount, gelatinCount)
+return marshmallowPossible
+end
+
 -- UI (depois que tudo está pronto)
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Malwerot/test1/refs/heads/main/UUII.lua"))()
 local Window = Library.CreateLib("XFC AutoFarm", "DarkTheme")
@@ -134,4 +143,10 @@ end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
     getInventory()
+end
+
+-- Botão para contar marshmallows
+SectionFarm:NewButton("Contar marshmallows", "Mostra quantos podem ser produzidos", function()
+    local marshmallowCount = countMarshmallows()
+    SectionFarm:NewLabel("Você pode farmar até " .. marshmallowPossible .. " marshmallows")
 end)
