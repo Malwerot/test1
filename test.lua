@@ -69,17 +69,65 @@ local function equipItem(itemName)
     return false
 end
 
--- Função para interagir com Lamont Bell instantaneamente
-local function pressLamontBell()
+-- Interagir com Cooking Pots (WH1 e Homes 1 a 4)
+local function pressE()
     pcall(function()
-        local npc = Workspace.Folders.NPCs:FindFirstChild("Lamont Bell")
-        if npc then
-            local upperTorso = npc:FindFirstChild("UpperTorso")
-            if upperTorso then
-                local pp = upperTorso:FindFirstChild("ProximityPrompt")
-                if pp then
-                    pp.HoldDuration = 0 -- interação instantânea
-                    fireproximityprompt(pp)
+        -- WH1
+        local interiorWH1 = Workspace.Map.Houses.WH1:FindFirstChild("Interior")
+        if interiorWH1 then
+            for _, child in ipairs(interiorWH1:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 1
+        local home1 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 1")
+        if home1 then
+            for _, child in ipairs(home1:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 2
+        local home2 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 2")
+        if home2 then
+            for _, child in ipairs(home2:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 3
+        local home3 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 3")
+        if home3 then
+            for _, child in ipairs(home3:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
+                end
+            end
+        end
+
+        -- Home 4
+        local home4 = Workspace.Map.Locations.Apartments:FindFirstChild("Home 4")
+        if home4 then
+            for _, child in ipairs(home4:GetChildren()) do
+                if child.Name == "Cooking Pot" then
+                    local att = child:FindFirstChild("Attachment")
+                    local pp = att and att:FindFirstChild("ProximityPrompt")
+                    if pp then fireproximityprompt(pp) end
                 end
             end
         end
@@ -151,11 +199,6 @@ SectionFarm:NewToggle("Iniciar AutoFarm", "Liga/Desliga o ciclo de farm", functi
     else
         stopAutoFarm()
     end
-end)
-
--- Botão de clique único para AutoSell Lamont Bell
-SectionFarm:NewButton("AutoSell Lamont Bell", "Clique para vender instantaneamente", function()
-    pressLamontBell()
 end)
 
 SectionFarm:NewButton("Mostrar Inventário", "Lista os itens atuais", function()
