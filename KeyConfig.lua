@@ -1,6 +1,6 @@
 -- KeyConfig.lua
 local KeyConfig = {}
 
-KeyConfig.RemoteKey = "BLOODHOUND ON TOP!" -- sua chave
+KeyConfig.RemoteKey = "BWD LEGACY" -- sua chave
 
 return KeyConfig
