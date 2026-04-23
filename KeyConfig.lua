@@ -1,6 +1,6 @@
 -- KeyConfig.lua
 local KeyConfig = {}
 
-KeyConfig.RemoteKey = "BWD LEGACY" -- sua chave
+KeyConfig.RemoteKey = "YGZ BR !" -- sua chave
 
 return KeyConfig
